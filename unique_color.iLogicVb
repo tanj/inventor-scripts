@@ -1,0 +1,42 @@
+'Code based on an Inventor Ideas forum post by Tanner Dant
+'https://forums.autodesk.com/t5/Inventor-ideas/visual-style-every-part-With-different-color/idc-p/8713666#M34691
+'Adapted for iLogic by @ClintBrown3D, originally posted at https://clintbrown.co.uk/ilogic-set-every-part-to-a-different-colour
+
+Sub Main()
+    Dim topAsm As AssemblyDocument
+    topAsm = ThisApplication.ActiveDocument
+    
+    Dim trans As Transaction
+    trans = ThisApplication.TransactionManager.StartTransaction(topAsm, "Unique Colors")
+    
+    Dim ucRep As DesignViewRepresentation
+    
+    On Error GoTo CreateDV
+    ucRep = topAsm.ComponentDefinition.RepresentationsManager.DesignViewRepresentations("Unique Colors")
+    On Error GoTo 0
+    
+    ucRep.Activate
+	
+    Dim compOcc As ComponentOccurrence
+    For Each compOcc In topAsm.ComponentDefinition.Occurrences
+        Dim uAppearance As Asset
+        uAppearance = topAsm.Assets.Add(kAssetTypeAppearance, "Generic", "appearances")
+		        
+        Dim uColor As ColorAssetValue
+        uColor = uAppearance.Item("generic_diffuse")
+		RNG = Round(Rnd * 255)
+		RNG1 = Round(Rnd * 255)
+		RNG2 = Round(Rnd * 255)
+
+        uColor.Value = ThisApplication.TransientObjects.CreateColor(RNG, RNG1, RNG2)
+        
+        compOcc.Appearance = uAppearance
+    Next
+    
+    trans.End
+    Exit Sub
+    
+CreateDV:
+    ucRep = topAsm.ComponentDefinition.RepresentationsManager.DesignViewRepresentations.Add("Unique Colors")
+    Resume Next
+End Sub
